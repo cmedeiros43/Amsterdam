@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amsterdam in December</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            line-height: 1.47;
+            padding-bottom: 3rem;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #1c1c1e 0%, #000000 100%);
+            color: white;
+            padding: 4rem 1.5rem 2rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.7;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .header .location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .search-container {
+            padding: 1.5rem 1.25rem 1rem;
+            background: transparent;
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1.1rem 1.25rem 1.1rem 3rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            color: #ffffff;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-box:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 0.5px solid rgba(255, 255, 255, 0.2);
+            transform: scale(1.01);
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .category-section {
+            background: rgba(255, 255, 255, 0.04);
+            margin: 0.5rem 1.25rem;
+            border-radius: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1.75rem;
+            cursor: pointer;
+            user-select: none;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .category-header:active {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .category-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.7px;
+        }
+
+        .chevron {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.5);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 300;
+        }
+
+        .category-section.open .chevron {
+            transform: rotate(90deg);
+        }
+
+        .category-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .category-section.open .category-content {
+            max-height: 10000px;
+        }
+
+        .items-grid {
+            padding: 0 0.75rem 1.25rem;
+        }
+
+        .item-card {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 1.75rem;
+            margin: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+        }
+
+        .item-card:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .distance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            background: rgba(0, 122, 255, 0.15);
+            border: 0.5px solid rgba(0, 122, 255, 0.3);
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64b5f6;
+            margin-bottom: 0.75rem;
+        }
+
+        .item-title {
+            color: #ffffff;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.3;
+        }
+
+        .item-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.97rem;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .item-meta {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .rating {
+            color: #ffd60a;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .meal-type {
+            background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .map-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.9rem 1.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 0.5px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .map-link:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .map-icon {
+            font-size: 1.1rem;
+        }
+
+        .subsection {
+            margin-top: 1rem;
+        }
+
+        .subsection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.75rem;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.03);
+            margin: 0.75rem;
+            border-radius: 16px;
+            border: 0.5px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .subsection-header:active {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .subsection-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: -0.3px;
+        }
+
+        .subsection-chevron {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .subsection.open .subsection-chevron {
+            transform: rotate(90deg);
+        }
+
+        .subsection-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .subsection.open .subsection-content {
+            max-height: 5000px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 650px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            body {
+                background: #f5f5f7;
+                color: #1d1d1f;
+            }
+
+            .header {
+                background: linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%);
+                border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+            }
+
+            .header h1 {
+                background: linear-gradient(135deg, #1d1d1f 0%, #6e6e73 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .search-box {
+                background: rgba(0, 0, 0, 0.04);
+                color: #1d1d1f;
+                border: 0.5px solid rgba(0, 0, 0, 0.08);
+            }
+
+            .category-section {
+                background: rgba(255, 255, 255, 0.8);
+                border: 0.5px solid rgba(0, 0, 0, 0.08);
+            }
+
+            .item-card {
+                background: rgba(0, 0, 0, 0.02);
+                border: 0.5px solid rgba(0, 0, 0, 0.08);
+            }
+
+            .category-title, .item-title {
+                color: #1d1d1f;
+            }
+
+            .item-description {
+                color: rgba(0, 0, 0, 0.7);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Amsterdam in December</h1>
+        <p>Your festive season guide</p>
+        <div class="location-badge">
+            <span>📍</span>
+            <span>From Kimpton De Witt</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-container">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-box" placeholder="Search activities & restaurants..." id="searchBox">
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">🎊 Festivals & Events</h2>
+                <span class="chevron">›</span>
+            </div>
+            <div class="category-content">
+                <div class="items-grid">
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.2 mi away</span>
+                        </div>
+                        <h3 class="item-title">New Year's Eve at Dam Square</h3>
+                        <p class="item-description">Ring in the New Year Dutch-style with spectacular fireworks over the city center. Dam Square transforms into a massive street party with celebrations throughout the night. The atmosphere is electric with thousands gathering to count down together.</p>
+                        <a href="https://maps.google.com/?q=Dam+Square+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.3 mi away</span>
+                        </div>
+                        <h3 class="item-title">Amsterdam Light Festival</h3>
+                        <p class="item-description">A magical winter festival featuring stunning light artworks along the canals. Take a boat tour or walk the Illuminade route to see installations from international artists transforming the city into an outdoor gallery. The festival runs throughout December and into January.</p>
+                        <a href="https://maps.google.com/?q=Amsterdam+Light+Festival+Route" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.9 mi away</span>
+                        </div>
+                        <h3 class="item-title">Sinterklaas Celebrations</h3>
+                        <p class="item-description">Experience the traditional Dutch celebration as Sinterklaas arrives by steamboat. The festive atmosphere continues through December 5th with parades and celebrations throughout the city. Children receive gifts and the streets are filled with holiday cheer.</p>
+                        <a href="https://maps.google.com/?q=Sinterklaas+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">🏛️ Must-Visit Attractions</h2>
+                <span class="chevron">›</span>
+            </div>
+            <div class="category-content">
+                <div class="items-grid">
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.25 mi away</span>
+                        </div>
+                        <h3 class="item-title">Anne Frank House</h3>
+                        <p class="item-description">A moving and essential visit to understand Amsterdam's WWII history. Book tickets well in advance online. The quiet winter months offer a more reflective experience. The museum preserves the hiding place where Anne Frank wrote her famous diary.</p>
+                        <a href="https://maps.google.com/?q=Anne+Frank+House+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.4 mi away</span>
+                        </div>
+                        <h3 class="item-title">Canal Cruise</h3>
+                        <p class="item-description">See Amsterdam's UNESCO-listed canals illuminated with festive lights. Many operators offer heated boats with hot chocolate and mulled wine during December. Multiple departure points near the hotel make this incredibly convenient.</p>
+                        <a href="https://maps.google.com/?q=Amsterdam+Canal+Cruises" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>1.1 mi away</span>
+                        </div>
+                        <h3 class="item-title">Rijksmuseum</h3>
+                        <p class="item-description">Home to masterpieces by Rembrandt and Vermeer, this world-class museum is perfect for a cozy December day. The beautiful building and gardens are even more atmospheric in winter. Don't miss "The Night Watch" and the stunning library.</p>
+                        <a href="https://maps.google.com/?q=Rijksmuseum+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>1.2 mi away</span>
+                        </div>
+                        <h3 class="item-title">Van Gogh Museum</h3>
+                        <p class="item-description">The world's largest collection of Van Gogh's works. December is an ideal time to visit with smaller crowds. The museum's café is perfect for warming up afterwards. See the evolution of his style from early works to his iconic sunflowers.</p>
+                        <a href="https://maps.google.com/?q=Van+Gogh+Museum+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>1.3 mi away</span>
+                        </div>
+                        <h3 class="item-title">Stedelijk Museum</h3>
+                        <p class="item-description">Amsterdam's premier modern and contemporary art museum. Features works by Mondrian, Kandinsky, and Warhol. The iconic bathtub-shaped extension is a landmark itself. Perfect for art lovers seeking 20th and 21st century masterpieces.</p>
+                        <a href="https://maps.google.com/?q=Stedelijk+Museum+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">🎄 Christmas Markets</h2>
+                <span class="chevron">›</span>
+            </div>
+            <div class="category-content">
+                <div class="items-grid">
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.4 mi away</span>
+                        </div>
+                        <h3 class="item-title">Amsterdam Christmas Market</h3>
+                        <p class="item-description">Traditional market at Rembrandtplein with wooden chalets selling crafts, gifts, and seasonal treats. Enjoy ice skating, carousel rides, and plenty of glühwein to keep warm. Live music and festive atmosphere throughout December.</p>
+                        <a href="https://maps.google.com/?q=Rembrandtplein+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>1.1 mi away</span>
+                        </div>
+                        <h3 class="item-title">Ice Amsterdam</h3>
+                        <p class="item-description">Museumplein transforms into a winter wonderland with an ice skating rink, après-ski bar, and festive atmosphere. Perfect for families and couples alike. Skate with the Rijksmuseum as your backdrop and warm up with hot chocolate.</p>
+                        <a href="https://maps.google.com/?q=Museumplein+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>3.2 mi away</span>
+                        </div>
+                        <h3 class="item-title">Amsterdam Winter Paradise</h3>
+                        <p class="item-description">Indoor winter market at RAI featuring 500+ stalls, a skating rink, and entertainment. Great option for escaping the cold while browsing unique gifts and enjoying festive food. Takes about 20 minutes to reach by tram.</p>
+                        <a href="https://maps.google.com/?q=RAI+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">⛸️ Winter Activities</h2>
+                <span class="chevron">›</span>
+            </div>
+            <div class="category-content">
+                <div class="items-grid">
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.3 mi away</span>
+                        </div>
+                        <h3 class="item-title">Red Light District Walking Tour</h3>
+                        <p class="item-description">Explore Amsterdam's most famous neighborhood with a guided tour that explains the history and culture. Learn about the city's progressive approach and see historic architecture. Evening tours offer a different perspective with the neon lights glowing.</p>
+                        <a href="https://maps.google.com/?q=Red+Light+District+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.5 mi away</span>
+                        </div>
+                        <h3 class="item-title">Jordaan Neighborhood Walk</h3>
+                        <p class="item-description">Wander through this charming district's narrow streets, independent boutiques, and cozy brown cafés. The neighborhood is particularly atmospheric in December with festive decorations. Stop at galleries, vintage shops, and local cheese stores.</p>
+                        <a href="https://maps.google.com/?q=Jordaan+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.6 mi away</span>
+                        </div>
+                        <h3 class="item-title">Nine Streets Shopping</h3>
+                        <p class="item-description">Discover the "Negen Straatjes" - nine charming streets connecting major canals. Browse vintage boutiques, specialty stores, and artisan shops. Perfect for finding unique Christmas gifts and experiencing local Amsterdam culture.</p>
+                        <a href="https://maps.google.com/?q=Nine+Streets+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.6 mi away</span>
+                        </div>
+                        <h3 class="item-title">Ice Skating at Leidseplein</h3>
+                        <p class="item-description">Try your hand at ice skating at the temporary rink in one of Amsterdam's liveliest squares. Beautiful scenic skating with the city as your backdrop. Surrounded by theaters, restaurants, and bars for après-skate entertainment.</p>
+                        <a href="https://maps.google.com/?q=Leidseplein+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>0.9 mi away</span>
+                        </div>
+                        <h3 class="item-title">Hermitage Amsterdam</h3>
+                        <p class="item-description">Explore rotating exhibitions from the famous Hermitage Museum in St. Petersburg. The historic building on the Amstel river is beautiful year-round. December exhibitions often feature special holiday-themed displays.</p>
+                        <a href="https://maps.google.com/?q=Hermitage+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>1.2 mi away</span>
+                        </div>
+                        <h3 class="item-title">Vondelpark Winter Stroll</h3>
+                        <p class="item-description">Amsterdam's largest park takes on a serene beauty in winter. Stop by the Blauwe Theehuis (Blue Tea House) for warm drinks and Dutch apple pie. Watch locals ice skating if the ponds freeze over.</p>
+                        <a href="https://maps.google.com/?q=Vondelpark+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>1.4 mi away</span>
+                        </div>
+                        <h3 class="item-title">Heineken Experience</h3>
+                        <p class="item-description">Interactive tour through the historic Heineken brewery. Learn about beer-making history, enjoy tastings, and explore Amsterdam's brewing heritage. The self-guided tour is fun and educational, perfect for a December afternoon.</p>
+                        <a href="https://maps.google.com/?q=Heineken+Experience+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                    <div class="item-card">
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span>2.2 mi away</span>
+                        </div>
+                        <h3 class="item-title">A'DAM Lookout & Swing</h3>
+                        <p class="item-description">Get panoramic views of Amsterdam from this observation deck across the IJ river. The thrilling rooftop swing is Europe's highest. Winter sunsets from here are spectacular. Take the free ferry from behind Central Station.</p>
+                        <a href="https://maps.google.com/?q=ADAM+Lookout+Amsterdam" target="_blank" class="map-link">
+                            <span class="map-icon">📍</span>
+                            <span>View on Maps</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">🍽️ Restaurants</h2>
+                <span class="chevron">›</span>
+            </div>
+            <div class="category-content">
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <h3 class="subsection-title">Breakfast</h3>
+                        <span class="subsection-chevron">›</span>
+                    </div>
+                    <div class="subsection-content">
+                        <div class="items-grid">
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.25 mi away</span>
+                                </div>
+                                <h3 class="item-title">Gartine</h3>
+                                <p class="item-description">Charming hidden gem serving homemade breakfast and brunch in a cozy setting. Known for their fresh ingredients and beautiful presentation. Their high tea is also exceptional. Reserve ahead as it's small and popular with locals.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.6/5</span>
+                                    <span class="meal-type">Breakfast</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Gartine+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.5 mi away</span>
+                                </div>
+                                <h3 class="item-title">Pancakes Amsterdam</h3>
+                                <p class="item-description">Traditional Dutch pancake house in a charming canal-side location. Try both sweet and savory options. Their apple pancake with cinnamon is a winter favorite. Great value and authentic Dutch breakfast experience.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.3/5</span>
+                                    <span class="meal-type">Breakfast</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Pancakes+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>1.6 mi away</span>
+                                </div>
+                                <h3 class="item-title">Bakers & Roasters</h3>
+                                <p class="item-description">Brazilian-New Zealand inspired brunch café serving spectacular breakfast dishes. Famous for their French toast and excellent coffee. Cozy atmosphere perfect for cold December mornings. Expect a wait on weekends.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.5/5</span>
+                                    <span class="meal-type">Breakfast</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Bakers+and+Roasters+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>1.7 mi away</span>
+                                </div>
+                                <h3 class="item-title">Dignita Hoftuin</h3>
+                                <p class="item-description">Trendy breakfast and brunch spot with a garden terrace (heated in winter). Known for healthy options, great smoothie bowls, and excellent coffee. Popular with locals. The avocado toast is a must-try.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.4/5</span>
+                                    <span class="meal-type">Breakfast</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Dignita+Hoftuin+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <h3 class="subsection-title">Lunch</h3>
+                        <span class="subsection-chevron">›</span>
+                    </div>
+                    <div class="subsection-content">
+                        <div class="items-grid">
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.4 mi away</span>
+                                </div>
+                                <h3 class="item-title">Café de Jaren</h3>
+                                <p class="item-description">Spacious grand café with canal terrace. Popular for lunch with a varied menu including sandwiches, salads, and Dutch classics. Beautiful interior perfect for lingering on a cold day. Great people-watching spot.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.2/5</span>
+                                    <span class="meal-type">Lunch</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Cafe+de+Jaren+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.6 mi away</span>
+                                </div>
+                                <h3 class="item-title">Café Winkel 43</h3>
+                                <p class="item-description">Famous for serving Amsterdam's best apple pie (appeltaart). Located in the Jordaan, it's always busy but worth the wait. Perfect lunch spot for something sweet and traditional. The pie is massive and delicious.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.5/5</span>
+                                    <span class="meal-type">Lunch</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Cafe+Winkel+43+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.7 mi away</span>
+                                </div>
+                                <h3 class="item-title">Van 't Spit</h3>
+                                <p class="item-description">Authentic Dutch eetcafé serving generous portions of traditional food. Try their stamppot (mashed potato with vegetables) or bitterballen. Warm, unpretentious atmosphere. Perfect for experiencing real Dutch cuisine.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.3/5</span>
+                                    <span class="meal-type">Lunch</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Van+t+Spit+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>3.0 mi away</span>
+                                </div>
+                                <h3 class="item-title">De Kas</h3>
+                                <p class="item-description">Farm-to-table restaurant in a stunning greenhouse. Seasonal menu featuring vegetables from their own garden. A unique and memorable lunch experience worth the trip. Reservations essential.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.6/5</span>
+                                    <span class="meal-type">Lunch</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=De+Kas+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <h3 class="subsection-title">Dinner</h3>
+                        <span class="subsection-chevron">›</span>
+                    </div>
+                    <div class="subsection-content">
+                        <div class="items-grid">
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.3 mi away</span>
+                                </div>
+                                <h3 class="item-title">De Silveren Spiegel</h3>
+                                <p class="item-description">Historic restaurant in a 17th-century canal house. Traditional Dutch haute cuisine with modern twists. The cozy, candlelit interior is magical in winter. Michelin-recommended and perfect for special occasions.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.5/5</span>
+                                    <span class="meal-type">Dinner</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=De+Silveren+Spiegel+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.4 mi away</span>
+                                </div>
+                                <h3 class="item-title">Restaurant Greetje</h3>
+                                <p class="item-description">Modern Dutch cuisine celebrating regional recipes and forgotten ingredients. Intimate setting perfect for a special dinner. Their seasonal game dishes are exceptional in December. Outstanding wine pairings available.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.7/5</span>
+                                    <span class="meal-type">Dinner</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Restaurant+Greetje+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.6 mi away</span>
+                                </div>
+                                <h3 class="item-title">Café de Reiger</h3>
+                                <p class="item-description">Beloved Jordaan neighborhood restaurant serving hearty Dutch and French-inspired dishes. Relaxed bistro atmosphere with consistently excellent food. Great value for quality. No reservations, so arrive early.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.5/5</span>
+                                    <span class="meal-type">Dinner</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Cafe+de+Reiger+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.6 mi away</span>
+                                </div>
+                                <h3 class="item-title">Moeders</h3>
+                                <p class="item-description">Quirky restaurant featuring traditional Dutch home cooking. Walls covered with photos of customers' mothers. Perfect for comfort food on a cold December night. Generous portions and warm hospitality.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.3/5</span>
+                                    <span class="meal-type">Dinner</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Moeders+Restaurant+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>0.8 mi away</span>
+                                </div>
+                                <h3 class="item-title">Restaurant Blauw</h3>
+                                <p class="item-description">Excellent Indonesian rijsttafel (rice table) experience. Try the extensive tasting menu featuring 15+ small dishes. Reflects Amsterdam's colonial history through outstanding food. Vegetarian options available.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.4/5</span>
+                                    <span class="meal-type">Dinner</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Restaurant+Blauw+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                            <div class="item-card">
+                                <div class="distance-badge">
+                                    <span>📍</span>
+                                    <span>1.1 mi away</span>
+                                </div>
+                                <h3 class="item-title">Toscanini</h3>
+                                <p class="item-description">Top-rated Italian restaurant known for fresh pasta and authentic flavors. Romantic candlelit atmosphere and excellent wine list. Reservations essential. The truffle pasta is legendary.</p>
+                                <div class="item-meta">
+                                    <span class="rating">⭐ 4.6/5</span>
+                                    <span class="meal-type">Dinner</span>
+                                </div>
+                                <a href="https://maps.google.com/?q=Toscanini+Amsterdam" target="_blank" class="map-link">
+                                    <span class="map-icon">📍</span>
+                                    <span>View on Maps</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Category sections
+        const categoryHeaders = document.querySelectorAll('.category-header');
+        categoryHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const section = header.parentElement;
+                section.classList.toggle('open');
+            });
+        });
+
+        // Subsections (meal types)
+        const subsectionHeaders = document.querySelectorAll('.subsection-header');
+        subsectionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const subsection = header.parentElement;
+                subsection.classList.toggle('open');
+            });
+        });
+
+        // Search functionality
+        const searchBox = document.getElementById('searchBox');
+        const categorySections = document.querySelectorAll('.category-section');
+        
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            categorySections.forEach(section => {
+                const cards = section.querySelectorAll('.item-card');
+                let hasVisibleCards = false;
+                
+                cards.forEach(card => {
+                    const title = card.querySelector('.item-title').textContent.toLowerCase();
+                    const description = card.querySelector('.item-description').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        hasVisibleCards = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                if (searchTerm && hasVisibleCards) {
+                    section.classList.add('open');
+                    // Also open subsections if they have matches
+                    const subsections = section.querySelectorAll('.subsection');
+                    subsections.forEach(sub => {
+                        const subCards = sub.querySelectorAll('.item-card');
+                        let hasVisibleSubCards = false;
+                        subCards.forEach(card => {
+                            if (card.style.display !== 'none') {
+                                hasVisibleSubCards = true;
+                            }
+                        });
+                        if (hasVisibleSubCards) {
+                            sub.classList.add('open');
+                        }
+                    });
+                } else if (searchTerm && !hasVisibleCards) {
+                    section.style.display = 'none';
+                } else {
+                    section.style.display = 'block';
+                    // Close subsections when search is cleared
+                    const subsections = section.querySelectorAll('.subsection');
+                    subsections.forEach(sub => sub.classList.remove('open'));
+                }
+            });
+        });
+    </script>
+</body>
+</html>
